@@ -1,13 +1,17 @@
 #todo: 
 #добавление функционала, найти какой
-#выбор языка. все тексты хранить в отдельном файле, сохранять какой язык будет в файл, а менять его внутренней настройкой
+#выбор языка. Адаптация кода к английскому языку и тестирование
 #отлов ошибок
 #расширение полей класса
 #м.б. красивый интерфейс с помощью библиотек расскраски 
 #документирование функций
 #одинаковые части кода в функицю
-#основное тело программы в Класс!!!!!
+#основное тело программы в Класс!!!!! Пока не понял как
 #пролистать книгу для поиска ещё задач
+#запись в файл, кнопка Сейв и вопрос о сохранении при выходе
+#добавить экран опций: смена языка, сохранение при добавлении или выходе, сортировка по..., 
+import RuLang, EnLang
+import pickle
 
 class Contact:
 	def __init__(self, FirstName, LastName, Telephone, Address):
@@ -18,22 +22,9 @@ class Contact:
 		self.Address = Address
 	def __repr__(self):
 		'''Приведение объекта к строковому типу + формат вывода'''
-		return("{} {} - Тел.: {} \n\tАдресс: {}".format(self.FirstName,\
+		return(Lang.reprT.format(self.FirstName,\
 			self.LastName,self.Telephone,self.Address) + \
 		   "\n*-----------------------------------------------------------*")
-
-#'''
-c1 = Contact("Иван","Иванов","12-23-34","ул. Ленина, 14")
-c2 = Contact("Пётр","Максимов","23-34-45","ул. Радищева, 10")
-c3 = Contact("Семён","Степанов","11-22-33","ул. Ленина, 26")
-c4 = Contact("Василий","Игорев","8-800-555-35-35","ул. Дубровинского, 5")
-c5 = Contact("Иван","Зимов","112","ул. Маяковского, 44")
-Book = [c1,c2,c3,c4,c5] #тестовый
-#'''
-#Book = [] #основной
-
-Interface = "Адресная книга\n\tП - просмотр\n\tИ - искать\n\t\
-Д - добавить\n\tУ - удалить\n\tВ - выход"
 
 def SearchContact(Book, Search):
 	'''Получение словаря найденных контактов.
@@ -55,48 +46,78 @@ def SearchContact(Book, Search):
 		elif contact.Address.lower().find(Search.lower()) != -1:
 			Counter += 1
 			SearchBook[Counter] = contact
-	print("Результаты поиска: ")
+	print(Lang.ResultSearchT)
 	for key, value in SearchBook.items():
 		print("{}. {}".format(key, value))
 	return SearchBook
 
-print(Interface)
-Comand = input("Команда: ")
+#c1 = Contact("Иван","Иванов","12-23-34","ул. Ленина, 14")
+#c2 = Contact("Пётр","Максимов","23-34-45","ул. Радищева, 10")
+#c3 = Contact("Семён","Степанов","11-22-33","ул. Ленина, 26")
+#c4 = Contact("Василий","Игорев","8-800-555-35-35","ул. Дубровинского, 5")
+#c5 = Contact("Иван","Зимов","112","ул. Маяковского, 44")
+#Book = [c1,c2,c3,c4,c5] #тестовый
+
+#Book = [] #основной
+
+Lang = RuLang
+
+f = open('Contacts.data', 'rb')
+Book = pickle.load(f) # загружаем объект из файла
+
+print(Lang.InterfaceT)
+Comand = input(Lang.ComandT)
+
 while Comand != 'В':
 	
-	if Comand == 'П': #добавить сортировку перед выводом
+	if Comand == 'П':	#вывод списка контактов
+		Book = sorted(Book, key=lambda contact: contact.FirstName)
 		for counter, value in enumerate(Book, 1):
 			print("{}. {}".format(counter, value))
 	
-	elif Comand == 'И':
-		Search = input("Введите известные данные о контакте: ")
+	elif Comand == 'И':		#поиск контактов
+		Search = input(Lang.SearchT)
 		SearchBook = SearchContact(Book, Search)
 
-	elif Comand == 'Д':
-		FN = input("\tИмя: ")
-		LN = input("\tФамилия: ")
-		T = input("\tТелефон: ")
-		A = input("\tАдрес: ")
+	elif Comand == 'Д':		#добавление контактов
+		FN = input(Lang.FirstNameT)
+		LN = input(Lang.LastNameT)
+		T = input(Lang.TelephoneT)
+		A = input(Lang.AddressT)
 		contact = Contact(FN,LN,T,A)
 		Book.append(contact)
 
-	elif Comand == 'У':
-		Delete = input("Введите известные данные об удаляемом контакте: ")
+	elif Comand == 'У':		#удаление контактов
+		Delete = input(Lang.DeleteT)
 		DeleteBook = SearchContact(Book, Delete)
-		DeleteInd = input("Введите номер удаляемого контакта: ")
+		DeleteInd = input(Lang.DeleteIndT)
 		DeleteObj = DeleteBook[int(DeleteInd)]
 		Book.remove(DeleteObj)
 		
+	elif Comand == 'Я' or Comand == 'L':	#смена языка
+		Switch = input(Lang.SwitchT)
+		if Switch == 'ru':
+			Lang = RuLang
+		elif Switch == 'en':
+			Lang = EnLang
+		print(Lang.InterfaceT)
 
-	else:
-		print("Несуществующая команда!")
-		Comand = input("Команда: ")
+	elif Comand == 'С': #сохранение
+		f = open('Contacts.data', 'wb')
+		pickle.dump(Book, f)
+		f.close()
+		print(Lang.SaveT)
+
+	else:	#ошибка введения команды
+		print(Lang.ErrComandT)
+		Comand = input(Lang.ComandT)
 		continue
 
-	Comand = input("Команда: ")
+	Comand = input(Lang.ComandT)
 
 else:
-	exit(0) #проверить
+	exit() #проверить
+
 
 	
 
