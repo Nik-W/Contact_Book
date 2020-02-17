@@ -64,6 +64,12 @@ Lang = RuLang
 
 f = open('Contacts.data', 'rb')
 Book = pickle.load(f) # загружаем объект из файла
+f.close()
+f = open('Setting.data', 'rb')
+Setting = pickle.load(f)
+
+#print (Setting) 
+#Setting = {"Lang" : "ru","SaveExit" : True}
 
 print(Lang.InterfaceT)
 Comand = input(Lang.ComandT)
@@ -93,7 +99,8 @@ while Comand != 'В':
 		DeleteInd = input(Lang.DeleteIndT)
 		DeleteObj = DeleteBook[int(DeleteInd)]
 		Book.remove(DeleteObj)
-		
+	
+	#перенести в настройки
 	elif Comand == 'Я' or Comand == 'L':	#смена языка
 		Switch = input(Lang.SwitchT)
 		if Switch == 'ru':
@@ -107,6 +114,31 @@ while Comand != 'В':
 		pickle.dump(Book, f)
 		f.close()
 		print(Lang.SaveT)
+
+	elif Comand == 'Н': #настройки
+		print("Настройки")
+		ComandSetting = input("Comand ") 
+		while ComandSetting != "Н": #назад
+			if ComandSetting == "Я": #сменя языка
+				pass
+
+			#доработать интерфейс. сделать смену языка тут.
+			#повторный ввод меню, при переходе между основным и настройками
+			elif ComandSetting == "С": #сохранение при выходе
+				ComandSave = input("Сохранять? Д/Н")
+				if ComandSave == "Д":
+					Setting["SaveExit"] = True
+				elif ComandSave == "Н":
+					Setting["SaveExit"] = False
+				else:
+					print(Lang.ErrComandT)
+					ComandSave = input("Сохранять? Д/Н")
+					continue
+				f = open('Setting.data', 'wb')
+				pickle.dump(Setting, f)
+				f.close()
+				#print(Lang.SaveT)
+			ComandSetting = input("Comand ")
 
 	else:	#ошибка введения команды
 		print(Lang.ErrComandT)
